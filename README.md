@@ -1,2 +1,1 @@
-# TournamentCalculator
-Calculator for chess tournaments to show standings after tiebreaks
+This project aims to provide a tournament calculator for chess. It allows for different tiebreakers to be used and enables the user to try out different future results to see the standings afterwards.
