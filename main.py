@@ -1,5 +1,5 @@
-from tournament import Tournament
-from player import Player
+from src.tournament import Tournament
+from src.player import Player
 
 if __name__ == '__main__':
     wc = Player(2862, 'Magnus Carlsen')
