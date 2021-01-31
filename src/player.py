@@ -13,13 +13,25 @@ class Player:
         self.name = name
         self.points: float = 0.0
 
+    def pretty_points(self):
+        if self.points.is_integer():
+            return str(int(self.points))
+        else:
+            return '{0:.1f}'.format(self.points)
+
     def __str__(self):
         return self.name
+
+    def __lt__(self, other):
+        return self.points < other.points
 
 
 class PlayerList:
     def __init__(self, players: List[Player]):
         self.players = players
+
+    def sort(self):
+        self.players.sort(reverse=True)
 
     def __getitem__(self, item: str):
         for player in self.players:
