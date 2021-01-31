@@ -9,3 +9,6 @@ class Player:
         self.elo = elo
         self.name = name
         self.points: float = 0.0
+
+    def __str__(self):
+        return self.name
