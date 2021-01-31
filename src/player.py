@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Player:
     def __init__(self, elo: int, name: str):
         """
@@ -12,3 +15,15 @@ class Player:
 
     def __str__(self):
         return self.name
+
+
+class PlayerList:
+    def __init__(self, players: List[Player]):
+        self.players = players
+
+    def __getitem__(self, item: str):
+        for player in self.players:
+            if item == player.name:
+                return player
+
+        return None
