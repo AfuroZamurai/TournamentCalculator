@@ -1,20 +1,3 @@
-from src.tournament import Tournament
-from src.player import Player
-
 if __name__ == '__main__':
-    wc = Player(2862, 'Magnus Carlsen')
-    challenger = Player(2823, 'Fabiano Caruana')
-
-    players = [wc, challenger]
-    wijk = Tournament(players, 14)
-
-    print('Standings:')
-    print('-----------------------')
-
-    for player in wijk.players:
-        points = player.points
-        if points.is_integer():
-            print('| {0} {1:.0f}'.format(player.name, player.points))
-        else:
-            print('| {0} {1:.1f}'.format(player.name, player.points))
+    print('So far, using this project only works via self-written test files (see test/wijk2021.py for an example)')
 
