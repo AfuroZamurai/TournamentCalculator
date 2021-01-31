@@ -12,5 +12,6 @@ class Tournament:
         self.tiebreaks = tiebreaks
         self.pairings = pairings
 
-    def calculate_standings(self):
+    def calculate_standings(self) -> Standings:
+        # TODO: decide on way to calculate this
         return Standings(self.players)
