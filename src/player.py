@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, Dict
+
+from src.result import Result
 
 
 class Player:
@@ -12,6 +14,9 @@ class Player:
         self.elo = elo
         self.name = name
         self.points: float = 0.0
+        self.opponents: Dict[Player, List[Result]] = {}
+        self.num_blacks = 0
+        self.num_wins = 0
 
     def pretty_points(self):
         if self.points.is_integer():
@@ -19,11 +24,29 @@ class Player:
         else:
             return '{0:.1f}'.format(self.points)
 
+    def add_opponent(self, opponent, result):
+        if opponent.name not in self.opponents:
+            self.opponents[opponent.name] = [result]
+        else:
+            self.opponents[opponent.name].append(result)
+
+    def calculate_wins(self):
+        for k, v in self.opponents.items():
+            for result in v:
+                if result == Result.WIN:
+                    self.num_wins += 1
+
     def __str__(self):
         return self.name
 
     def __lt__(self, other):
         return self.points < other.points
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(repr(self))
 
 
 class PlayerList:

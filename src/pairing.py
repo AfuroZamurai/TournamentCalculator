@@ -1,12 +1,5 @@
-from enum import Enum
-
 from src.player import Player
-
-
-class Result(Enum):
-    WHITE_WIN = "1-0"
-    DRAW = "0.5-0.5"
-    BLACK_WIN = "0-1"
+from src.result import Result
 
 
 class Pairing:
@@ -23,6 +16,6 @@ if __name__ == '__main__':
     p1 = Player(2823, 'Fabiano Caruana')
     p2 = Player(2862, 'Magnus Carlsen')
     pairing = Pairing(p1, p2)
-    pairing.result = Result.DRAW
+    pairing.result = Result.DRAWN
 
     print(pairing)

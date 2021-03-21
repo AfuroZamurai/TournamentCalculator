@@ -1,9 +1,10 @@
-from typing import Dict, List
+from collections import OrderedDict
+from typing import Dict, List, Optional
 
 from texttable import Texttable
 
 from src.pairing import Pairing
-from src.pairing import Result
+from src.result import Result
 from src.player import PlayerList
 from src.tiebreak import sonneborn_berger, direct_encounter, number_wins, number_blacks, buchholz
 
@@ -14,43 +15,70 @@ class Standings:
         self.round = round
         self.players = players
         self.pairings = pairings
-        self.tiebreaks = {}
-        self.table = []
-        self.sort_by_points()
+        self.tiebreaks = OrderedDict()
+        self.table: List[Dict] = []
 
     def sort_by_points(self):
         for r, ps in self.pairings.items():
             for p in ps:
+                white = p.player_white
+                black = p.player_black
+
                 if p.result == Result.WHITE_WIN:
-                    p.player_white.points += 1
-                if p.result == Result.DRAW:
-                    p.player_white.points += 0.5
-                    p.player_black.points += 0.5
+                    white.points += 1
+                    white.add_opponent(black, Result.WIN)
+                    black.add_opponent(white, Result.LOSS)
+                if p.result == Result.DRAWN:
+                    white.points += 0.5
+                    black.points += 0.5
+                    white.add_opponent(black, Result.DRAW)
+                    black.add_opponent(white, Result.DRAW)
                 if p.result == Result.BLACK_WIN:
-                    p.player_black.points += 1
+                    black.points += 1
+                    white.add_opponent(black, Result.LOSS)
+                    black.add_opponent(white, Result.WIN)
 
         self.players.sort()
 
         for player in self.players.players:
-            self.table.append([player.name, 'WIP', player.pretty_points(), 'DE', 'SB', '#B'])
+            elements = {
+                'name': player.name,
+                'round': self.round,
+                'points': player.pretty_points()
+            }
+            for tiebreak in self.tiebreaks.values():
+                elements[tiebreak[0]] = 'N/A'
+            self.table.append(elements)
 
     def add_tiebreak(self, name: str, relevance: int) -> None:
         if name == 'Sonneborn-Berger':
-            self.tiebreaks[relevance] = (name, sonneborn_berger)
+            self.tiebreaks[relevance] = (name, sonneborn_berger, 't')
         elif name == 'Direct encounter':
-            self.tiebreaks[relevance] = (name, direct_encounter)
+            self.tiebreaks[relevance] = (name, direct_encounter, 't')
         elif name == 'number wins':
-            self.tiebreaks[relevance] = (name, number_wins)
+            self.tiebreaks[relevance] = (name, number_wins, 'i')
         elif name == 'Games with Black':
-            self.tiebreaks[relevance] = (name, number_blacks)
+            self.tiebreaks[relevance] = (name, number_blacks, 'i')
         elif name == 'buchholz':
-            self.tiebreaks[relevance] = (name, buchholz)
+            self.tiebreaks[relevance] = (name, buchholz, 't')
         else:
             raise Exception('{0}: Unknown tiebreak criterion!'.format(name))
 
-    def calculate_standing(self) -> None:
+    def sort_criterions(self):
+        self.tiebreaks[-1] = ('points', None)
+        self.tiebreaks.move_to_end(-1, last=False)
+        return lambda x: [x[t[0]] for t in self.tiebreaks.values()]
 
-        pass
+    def sort_by_tiebreaks(self):
+        self.table.sort(key=self.sort_criterions(), reverse=True)
+        del self.tiebreaks[-1]
+
+    def calculate_standing(self) -> None:
+        self.sort_by_points()
+        for relevance, tiebreak in self.tiebreaks.items():
+            self.table = tiebreak[1](self.table, self.players, self.pairings, relevance)
+
+        self.sort_by_tiebreaks()
 
     def __str__(self):
         table = Texttable(max_width=0)
@@ -68,9 +96,14 @@ class Standings:
             col_alignments.append('c')
         table.set_cols_align(col_alignments)
 
+        col_dtypes = ['i', 't', 'i', 't']
+        for tiebreak in self.tiebreaks.values():
+            col_dtypes.append(tiebreak[2])
+        table.set_cols_dtype(col_dtypes)
+
         for rank, player in enumerate(self.table):
             cur_row = [rank + 1]
-            for entry in player:
+            for entry in player.values():
                 cur_row.append(entry)
             table.add_row(cur_row)
 
