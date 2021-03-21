@@ -16,6 +16,6 @@ class Tournament:
     def calculate_standings(self) -> Standings:
         standings = Standings(self.name, len(self.pairings), self.players, self.pairings)
         for i, tiebreak in enumerate(self.tiebreaks):
-            standings.add_tiebreak(tiebreak, i)
+            standings.add_tiebreak(tiebreak, i + 1)
         standings.calculate_standing()
         return standings
